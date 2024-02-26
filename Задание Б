@@ -1,0 +1,44 @@
+trait Animal {
+  def makeSound(): Unit
+}
+
+trait FourLeggedAnimal extends Animal {
+  def walk(): Unit = println("Идет на четырех ногах")
+}
+
+class Dog extends FourLeggedAnimal {
+  def makeSound(): Unit = println("Гав")
+
+  // Использование вложенной функции (Nested Function)
+  def fetch(item: String): Unit = {
+    def printFetchMessage(item: String): Unit = println(s"Принес $item")
+    printFetchMessage(item)
+  }
+}
+
+object AnimalApp extends App {
+  // Замыкание (Closure) с использованием внешней переменной
+  val outdoorSound = "Эхо в лесу: "
+  val makeOutdoorSound: String => Unit = sound => println(outdoorSound + sound)
+
+  // Частично примененная функция (Partially Applied Function)
+  def greet(greeting: String, name: String): Unit = println(s"$greeting, $name")
+  val sayHelloTo = greet("Привет") _
+
+  val dog = new Dog
+  dog.makeSound()
+  dog.walk()
+  dog.fetch("палку")
+
+  // Пример использования анонимной функции
+  val sayHi = () => println("Привет")
+  sayHi()
+
+  // Пример использования функции с переменным количеством аргументов (Varargs)
+  def printNames(names: String*): Unit = names.foreach(println)
+  printNames("Макс", "Лео", "Рекс")
+
+  // Демонстрация замыкания и частично примененной функции
+  makeOutdoorSound("Гав")
+  sayHelloTo("Макс")
+}
