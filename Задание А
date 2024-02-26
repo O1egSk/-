@@ -1,0 +1,75 @@
+import scala.io.StdIn._
+import java.io._
+import scala.util.Using
+
+object PhoneBook extends App {
+  var phoneBook: Map[String, String] = readPhoneBookFromFile("phonebook.txt")
+
+  def readPhoneBookFromFile(fileName: String): Map[String, String] = {
+    val file = new File(fileName)
+    if (file.exists) {
+      Using(scala.io.Source.fromFile(file)) { source =>
+        source.getLines.foldLeft(Map.empty[String, String]) { (map, line) =>
+          val Array(name, number) = line.split(", ")
+          map + (name -> number)
+        }
+      }.getOrElse(Map.empty)
+    } else Map.empty
+  }
+
+  def savePhoneBookToFile(fileName: String): Unit = {
+    Using(new PrintWriter(new File(fileName))) { writer =>
+      phoneBook.foreach { case (name, number) =>
+        writer.println(s"$name, $number")
+      }
+    }
+  }
+
+  def addEntry(name: String, number: String): Unit = {
+    phoneBook = phoneBook + (name -> number)
+    println("Запись добавлена.")
+  }
+
+  def findNumberByName(name: String): Option[String] = phoneBook.get(name)
+
+  def findNameByNumber(number: String): Option[String] = phoneBook.find(_._2 == number).map(_._1)
+
+  def showPhoneBook(): Unit = {
+    phoneBook.foreach { case (name, number) =>
+      println(s"$name: $number")
+    }
+  }
+
+  def mainMenu(): Unit = {
+    println("\nТелефонный справочник:")
+    println("0 - выйти")
+    println("1 - добавить запись (имя и телефон)")
+    println("2 - найти телефон по имени")
+    println("3 - найти имя по телефону")
+    println("4 - сохранить текущие данные в файл")
+    println("5 - показать содержимое всей телефонной книги")
+    readLine("Выберите действие: ") match {
+      case "0" => return
+      case "1" =>
+        val name = readLine("Введите имя: ")
+        val number = readLine("Введите номер телефона: ")
+        addEntry(name, number)
+      case "2" =>
+        val name = readLine("Введите имя: ")
+        findNumberByName(name).foreach(number => println(s"Номер телефона: $number"))
+      case "3" =>
+        val number = readLine("Введите номер телефона: ")
+        findNameByNumber(number).foreach(name => println(s"Имя: $name"))
+      case "4" =>
+        savePhoneBookToFile("phonebook.txt")
+        println("Телефонная книга сохранена.")
+      case "5" =>
+        showPhoneBook()
+      case _ =>
+        println("Неверный выбор. Пожалуйста, попробуйте еще раз.")
+    }
+    mainMenu()
+  }
+
+  mainMenu()
+}
